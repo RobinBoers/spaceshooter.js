@@ -11,8 +11,7 @@ const clock = new THREE.Clock();
 
 let blocker, instructions, text;
 
-init();
-animate();
+window.onload = init();
 
 function init() {
     // Camera and scene stuff
@@ -76,7 +75,12 @@ function init() {
     for (var i = 0; i < 700; i++) {
         const ring = new Ring(scene);
     }
+
+    // Render the scene for the first time
     renderer.render(scene, camera);
+
+    // Start the animation loop thingie
+    animate();
 }
 
 function animate() {
@@ -99,4 +103,5 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.render(scene, camera);
 }
