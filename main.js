@@ -1,97 +1,83 @@
 import "./style.css";
-
 import * as THREE from "three";
-import { FlyControls } from "three/examples/jsm/controls/FlyControls";
-// import { TextureLoader } from "three";
 
-// Renderer, camera & scene stuff
-
-const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x000000, 0.00000025);
-
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / innerHeight, 0.1, 1000);
-
-const clock = new THREE.Clock();
-
-const renderer = new THREE.WebGLRenderer({
-    canvas: document.querySelector("#bg"),
-    antialias: true,
-});
+import { FlyControls } from "./flycontrols-component";
+import { Ring } from "./rings-component";
 
 let playing = false;
 
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0xdddddd, 1);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+let camera, controls, scene, renderer;
+const clock = new THREE.Clock();
 
-camera.position.setZ(30);
+let blocker, instructions, text;
 
-window.addEventListener("resize", () => {
-    onWindowResize();
-});
+init();
+animate();
 
-// Skybox
+function init() {
+    // Camera and scene stuff
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / innerHeight, 0.1, 1000);
+    camera.position.setZ(30);
 
-// const loader = new THREE.CubeTextureLoader();
-// const texture = loader.load(["assets/posx.jpg", "assets/negx.jpg", "assets/posy.jpg", "assets/negy.jpg", "assets/posz.jpg", "assets/negz.jpg"]);
-// scene.background = texture;
+    scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x000000, 0.00000025);
 
-// Lighting
+    renderer = new THREE.WebGLRenderer({
+        canvas: document.querySelector("#bg"),
+        antialias: true,
+    });
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-directionalLight.position.set(5, 5, 5);
-directionalLight.castShadow = true;
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0xdddddd, 1);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-scene.add(ambientLight, directionalLight);
+    window.addEventListener("resize", () => {
+        onWindowResize();
+    });
 
-// Controls & Pause screen
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    directionalLight.position.set(5, 5, 5);
+    directionalLight.castShadow = true;
 
-const controls = new FlyControls(camera, renderer.domElement);
+    scene.add(ambientLight, directionalLight);
 
-controls.movementSpeed = 100;
-controls.domElement = renderer.domElement;
-controls.rollSpeed = Math.PI / 24;
-controls.autoForward = false;
-controls.dragToLook = false;
+    // Controls
+    controls = new FlyControls(camera, renderer.domElement);
 
-const blocker = document.getElementById("blocker");
-const instructions = document.getElementById("instructions");
+    controls.movementSpeed = 100;
+    controls.domElement = renderer.domElement;
+    controls.rollSpeed = Math.PI / 24;
+    controls.autoForward = false;
+    controls.dragToLook = false;
 
-instructions.addEventListener("click", () => {
-    playing = true;
-    clock.start();
-});
+    // Pause screen
+    blocker = document.getElementById("blocker");
+    instructions = document.getElementById("instructions");
+    text = document.getElementById("text");
 
-document.addEventListener("keydown", function (event) {
-    if (event.key == "Escape") {
-        playing = false;
-        clock.stop();
+    text.innerHTML = "Welcome to spaceshooter.js<br />This game is still WIP. If you find any bugs please report them at robin@geheimsite.nl<br />Also, have fun playing. There is no goal yet, but in the future there will be enemies trying to shoot you.<br />Press Escape to pause the game if you want to. Enjoy!";
+
+    instructions.addEventListener("click", () => {
+        playing = true;
+        clock.start();
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key == "Escape") {
+            playing = false;
+            clock.stop();
+        }
+    });
+
+    for (var i = 0; i < 700; i++) {
+        const ring = new Ring(scene);
     }
-});
-
-// Rings
-
-function addRing() {
-    const geometry = new THREE.TorusGeometry(15, 3, 16, 100);
-    const material = new THREE.MeshLambertMaterial({ color: 0xff6347 });
-    const torus = new THREE.Mesh(geometry, material);
-
-    const x = THREE.MathUtils.randFloat(-1000, 1000);
-    const y = THREE.MathUtils.randFloat(-1000, 1000);
-    const z = THREE.MathUtils.randFloat(-1000, 1000);
-
-    torus.position.set(x, y, z);
-    scene.add(torus);
+    renderer.render(scene, camera);
 }
-
-for (var i = 0; i < 700; i++) {
-    addRing();
-}
-
-// Main loop and helper functions
 
 function animate() {
     requestAnimationFrame(animate);
@@ -114,6 +100,3 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
-
-renderer.render(scene, camera);
-animate();
