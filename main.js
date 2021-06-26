@@ -28,8 +28,6 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 camera.position.setZ(30);
 
-renderer.render(scene, camera);
-
 window.addEventListener("resize", () => {
     onWindowResize();
 });
@@ -64,11 +62,13 @@ const instructions = document.getElementById("instructions");
 
 instructions.addEventListener("click", () => {
     playing = true;
+    clock.start();
 });
 
 document.addEventListener("keydown", function (event) {
     if (event.key == "Escape") {
         playing = false;
+        clock.stop();
     }
 });
 
@@ -95,13 +95,14 @@ for (var i = 0; i < 700; i++) {
 
 function animate() {
     requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-
-    controls.update(clock.getDelta());
 
     if (playing == true) {
         instructions.style.display = "none";
         blocker.style.display = "none";
+
+        renderer.render(scene, camera);
+
+        controls.update(clock.getDelta());
     } else {
         blocker.style.display = "block";
         instructions.style.display = "";
@@ -114,4 +115,5 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+renderer.render(scene, camera);
 animate();
