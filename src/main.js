@@ -8,24 +8,27 @@ import { OBJLoader } from "./obj-loader";
 import { FlyControls } from "./flycontrols-component";
 import { Ring } from "./rings-component";
 
-let playing = false;
+let camera, controls, scene, renderer, mltLoader, objLoader, player, loadingScreen;
+let blocker, instructions, text, loadingText;
 
-let camera, controls, scene, renderer, mltLoader, objLoader, player;
 const clock = new THREE.Clock();
 
 let colors = [ 0xdddddd, 0x000000, 0xff6347, 0xffffff ];
+let models = {
+    ship: {
+        obj: "models/craft_speederD.obj", 
+        mtl: "models/craft_speederD.mtl",
+        mesh: null
+    },
+    miner: {
+        obj: "models/craft_miner.obj", 
+        mtl: "models/craft_miner.mtl",
+        mesh: null
+    }
+};
+let meshes = {};
 
-let blocker, instructions, text, loadingText;
-
-var loadingScreen = {
-    scene: new THREE.Scene(),
-    camera: new THREE.PerspectiveCamera(90, window.innerWidth / innerHeight, 0.1, 100),
-    box: new THREE.Mesh(
-        new THREE.BoxGeometry(0.5,0.5,0.5),
-        new THREE.MeshBasicMaterial({color: colors[2]})
-    )
-}
-
+let PAUSED = true;
 let USE_WIREFRAME = false; //laggy, only for debugging
 let RESCOURCES_LOADED = false;
 
@@ -36,6 +39,15 @@ function init() {
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / innerHeight, 0.1, 1000);
     camera.position.setZ(30);
 
+    loadingScreen = loadingScreen = {
+        scene: new THREE.Scene(),
+        camera: new THREE.PerspectiveCamera(90, window.innerWidth / innerHeight, 0.1, 100),
+        box: new THREE.Mesh(
+            new THREE.BoxGeometry(0.5,0.5,0.5),
+            new THREE.MeshBasicMaterial({color: colors[2]})
+        )
+    }
+
     loadingScreen.box.position.set(0,0,5);
     loadingScreen.camera.lookAt(loadingScreen.box.position);
     loadingScreen.scene.add(loadingScreen.box);
@@ -44,27 +56,48 @@ function init() {
         console.log(item, loaded, total);
     };
     THREE.DefaultLoadingManager.onLoad = function() {
-        console.log("Loaded rescources.");
         RESCOURCES_LOADED = true;
-
-        renderer.render(scene, camera); // Render the first frame of the game to replace the loading screen
+        onRescourcesLoaded();
     }
 
-    mltLoader = new MTLLoader();
-    mltLoader.load("models/craft_speederD.mtl", function(materials) {
-        materials.preload();
-        objLoader = new OBJLoader();
-        objLoader.setMaterials(materials);
+    // mltLoader = new MTLLoader();
+    // mltLoader.load("models/craft_speederD.mtl", function(materials) {
+    //     materials.preload();
+    //     objLoader = new OBJLoader();
+    //     objLoader.setMaterials(materials);
 
 
-        objLoader.load("models/craft_speederD.obj", function(mesh) {
-            player = mesh;
-            player.scale.x = 9;
-            player.scale.y = 9;
-            player.scale.z = 9;
-            scene.add(player)
-        })
-    })
+    //     objLoader.load("models/craft_speederD.obj", function(mesh) {
+    //         player = mesh;
+    //         player.scale.x = 9;
+    //         player.scale.y = 9;
+    //         player.scale.z = 9;
+    //         scene.add(player)
+    //     })
+    // })
+
+    for (var _key in models) {
+        (function(key){
+            mltLoader = new MTLLoader();
+            mltLoader.load(models[key].mtl, function(materials) {
+
+                materials.preload();
+                objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+
+                objLoader.load(models[key].obj, function(mesh) {
+                    mesh.traverse(function(node){
+                        if(node instanceof THREE.Mesh) {
+                            node.castShadow = true;
+                            node.receiveShadow = true;
+                        }
+                    });
+                    models[key].mesh = mesh;
+                });
+
+            });
+        })(_key);
+    }
 
     scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(colors[1], 0.00000025);
@@ -106,12 +139,14 @@ function init() {
     controls.autoForward = false;
     controls.dragToLook = false;
 
-    // Pause screen
+    // Pause screen and loading screen
     blocker = document.getElementById("blocker");
     instructions = document.getElementById("instructions");
+
     text = document.getElementById("text");
     info = document.getElementById("info");
     title = document.getElementById("title");
+
     loadingText = document.getElementById("loading-text");
 
     text.innerHTML = "Welcome to spaceshooter.js<br />This game is still WIP. If you find any bugs please report them at robin@geheimsite.nl<br />Also, have fun playing. There is no goal yet, but in the future there will be enemies trying to shoot you.<br />Press Escape to pause the game if you want to. Enjoy!";
@@ -121,13 +156,13 @@ function init() {
     title.innerHTML = "Click to play"
 
     instructions.addEventListener("click", () => {
-        playing = true;
+        PAUSED = false;
         clock.start();
     });
 
     document.addEventListener("keydown", function (event) {
         if (event.key == "Escape") {
-            playing = false;
+            PAUSED = true;
             clock.stop();
         }
     });
@@ -164,7 +199,7 @@ function animate() {
 
     requestAnimationFrame(animate);
 
-    if (playing == true) {
+    if (!PAUSED) {
         instructions.style.display = "none";
         blocker.style.display = "none";
 
@@ -185,4 +220,18 @@ function onWindowResize() {
 
     loadingScreen.camera.aspect = window.innerWidth / window.innerHeight;
     loadingScreen.camera.updateProjectionMatrix();
+}
+
+function onRescourcesLoaded() {
+    console.log("Loaded rescources.");
+    
+    meshes["player"] = Object.assign(models.ship.mesh);
+
+    player = meshes["player"];
+    player.scale.x = 9;
+    player.scale.y = 9;
+    player.scale.z = 9;
+    scene.add(player);
+
+    renderer.render(scene, camera); // Render the first frame of the game to replace the loading screen
 }
