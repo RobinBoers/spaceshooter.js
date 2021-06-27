@@ -13,9 +13,21 @@ let playing = false;
 let camera, controls, scene, renderer, mltLoader, objLoader, player;
 const clock = new THREE.Clock();
 
-let blocker, instructions, text;
+let colors = [ 0xdddddd, 0x000000, 0xff6347, 0xffffff ];
 
-let USE_WIREFRAME = false;
+let blocker, instructions, text, loadingText;
+
+var loadingScreen = {
+    scene: new THREE.Scene(),
+    camera: new THREE.PerspectiveCamera(90, window.innerWidth / innerHeight, 0.1, 100),
+    box: new THREE.Mesh(
+        new THREE.BoxGeometry(0.5,0.5,0.5),
+        new THREE.MeshBasicMaterial({color: colors[2]})
+    )
+}
+
+let USE_WIREFRAME = false; //laggy, only for debugging
+let RESCOURCES_LOADED = false;
 
 window.onload = init();
 
@@ -23,6 +35,20 @@ function init() {
     // Camera and scene stuff
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / innerHeight, 0.1, 1000);
     camera.position.setZ(30);
+
+    loadingScreen.box.position.set(0,0,5);
+    loadingScreen.camera.lookAt(loadingScreen.box.position);
+    loadingScreen.scene.add(loadingScreen.box);
+
+    THREE.DefaultLoadingManager.onProgress = function(item, loaded, total) {
+        console.log(item, loaded, total);
+    };
+    THREE.DefaultLoadingManager.onLoad = function() {
+        console.log("Loaded rescources.");
+        RESCOURCES_LOADED = true;
+
+        renderer.render(scene, camera); // Render the first frame of the game to replace the loading screen
+    }
 
     mltLoader = new MTLLoader();
     mltLoader.load("models/craft_speederD.mtl", function(materials) {
@@ -41,7 +67,7 @@ function init() {
     })
 
     scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x000000, 0.00000025);
+    scene.fog = new THREE.FogExp2(colors[1], 0.00000025);
 
     renderer = new THREE.WebGLRenderer({
         canvas: document.querySelector("#bg"),
@@ -50,7 +76,7 @@ function init() {
 
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0xdddddd, 1);
+    renderer.setClearColor(colors[0], 1);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -59,14 +85,14 @@ function init() {
     });
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    const ambientLight = new THREE.AmbientLight(colors[3], 0.6);
+    const directionalLight = new THREE.DirectionalLight(colors[3], 0.6);
     directionalLight.position.set(5, 5, 5);
     directionalLight.castShadow = true;
 
     scene.add(ambientLight, directionalLight);
 
-    if(USE_WIREFRAME) {
+    if(USE_WIREFRAME) { //draw lighthelpers when wireframes are visible (for debugging purposes)
         const helper = new THREE.DirectionalLightHelper(directionalLight, 5);
         scene.add(helper);
     }
@@ -84,8 +110,15 @@ function init() {
     blocker = document.getElementById("blocker");
     instructions = document.getElementById("instructions");
     text = document.getElementById("text");
+    info = document.getElementById("info");
+    title = document.getElementById("title");
+    loadingText = document.getElementById("loading-text");
 
     text.innerHTML = "Welcome to spaceshooter.js<br />This game is still WIP. If you find any bugs please report them at robin@geheimsite.nl<br />Also, have fun playing. There is no goal yet, but in the future there will be enemies trying to shoot you.<br />Press Escape to pause the game if you want to. Enjoy!";
+
+    info.innerHTML = "<b>WASD</b> move, <b>R|F</b> up | down, <b>Q|E</b> roll, <b>up|down</b> pitch, <b>left|right</b> yaw";
+
+    title.innerHTML = "Click to play"
 
     instructions.addEventListener("click", () => {
         playing = true;
@@ -100,7 +133,7 @@ function init() {
     });
 
     for (var i = 0; i < 700; i++) {
-        const ring = new Ring(scene, USE_WIREFRAME);
+        const ring = new Ring(scene, USE_WIREFRAME, colors[2]);
     }
 
     // Render the scene for the first time
@@ -111,6 +144,24 @@ function init() {
 }
 
 function animate() {
+    
+    if(!RESCOURCES_LOADED) {
+        requestAnimationFrame(animate);
+
+        instructions.style.display = "none";
+        blocker.style.display = "none";
+
+        loadingScreen.box.rotation.x += 0.01;
+        loadingScreen.box.rotation.y += 0.01;
+        loadingScreen.box.rotation.z += 0.01;
+
+        renderer.render(loadingScreen.scene, loadingScreen.camera);
+
+        return;
+    } else {
+        loadingText.style.display = "none";
+    }
+
     requestAnimationFrame(animate);
 
     if (playing == true) {
@@ -131,4 +182,7 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.render(scene, camera);
+
+    loadingScreen.camera.aspect = window.innerWidth / window.innerHeight;
+    loadingScreen.camera.updateProjectionMatrix();
 }

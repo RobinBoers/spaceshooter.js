@@ -12,6 +12,11 @@ html {
     box-sizing: border-box;
 }
 
+html,body {
+    width: 100%;
+    height: 100%;
+}
+
 *,
 *:before,
 *:after {
@@ -45,6 +50,18 @@ b {
     user-select: none;
     pointer-events: none;
     z-index: 1; /* TODO Solve this in HTML */
+}
+
+#title {
+    font-size: 36px;
+}
+
+#loading-text {
+    width: 100%;
+    position: fixed;
+    top: 60%;
+    text-align: center;
+    z-index: 2;
 }
 
 #blocker {
