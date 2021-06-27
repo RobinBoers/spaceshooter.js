@@ -1,5 +1,3 @@
-// Rings
-
 import * as THREE from "three";
 
 class Ring {
