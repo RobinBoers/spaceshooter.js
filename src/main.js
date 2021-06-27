@@ -1,15 +1,21 @@
 import "./style.css";
 import * as THREE from "three";
 
+import { DDSLoader } from "./dds-loader";
+import { MTLLoader } from "./mlt-loader";
+import { OBJLoader } from "./obj-loader";
+
 import { FlyControls } from "./flycontrols-component";
 import { Ring } from "./rings-component";
 
 let playing = false;
 
-let camera, controls, scene, renderer;
+let camera, controls, scene, renderer, mltLoader, objLoader, player;
 const clock = new THREE.Clock();
 
 let blocker, instructions, text;
+
+let USE_WIREFRAME = false;
 
 window.onload = init();
 
@@ -17,6 +23,22 @@ function init() {
     // Camera and scene stuff
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / innerHeight, 0.1, 1000);
     camera.position.setZ(30);
+
+    mltLoader = new MTLLoader();
+    mltLoader.load("models/craft_speederD.mtl", function(materials) {
+        materials.preload();
+        objLoader = new OBJLoader();
+        objLoader.setMaterials(materials);
+
+
+        objLoader.load("models/craft_speederD.obj", function(mesh) {
+            player = mesh;
+            player.scale.x = 9;
+            player.scale.y = 9;
+            player.scale.z = 9;
+            scene.add(player)
+        })
+    })
 
     scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x000000, 0.00000025);
@@ -43,6 +65,11 @@ function init() {
     directionalLight.castShadow = true;
 
     scene.add(ambientLight, directionalLight);
+
+    if(USE_WIREFRAME) {
+        const helper = new THREE.DirectionalLightHelper(directionalLight, 5);
+        scene.add(helper);
+    }
 
     // Controls
     controls = new FlyControls(camera, renderer.domElement);
@@ -73,7 +100,7 @@ function init() {
     });
 
     for (var i = 0; i < 700; i++) {
-        const ring = new Ring(scene);
+        const ring = new Ring(scene, USE_WIREFRAME);
     }
 
     // Render the scene for the first time
