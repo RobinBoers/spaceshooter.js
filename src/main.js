@@ -6,10 +6,12 @@ import { MTLLoader } from "./mlt-loader";
 import { OBJLoader } from "./obj-loader";
 
 import { FlyControls } from "./flycontrols-component";
-import { Ring } from "./rings-component";
+import { spawnRings } from "./rings-component";
+import { defaultLoadingScreen, defaultPauseScreen } from "./ui-component"
 
-let camera, controls, scene, renderer, mltLoader, objLoader, player, loadingScreen;
-let blocker, instructions, text, loadingText;
+let camera, controls, scene, renderer, player;
+let loadingScreen, pauseScreen;
+let mltLoader, objLoader;
 
 const clock = new THREE.Clock();
 
@@ -28,7 +30,6 @@ let models = {
 };
 let meshes = {};
 
-let PAUSED = true;
 let USE_WIREFRAME = false; //laggy, only for debugging
 let RESCOURCES_LOADED = false;
 
@@ -37,20 +38,10 @@ window.onload = init();
 function init() {
     // Camera and scene stuff
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / innerHeight, 0.1, 1000);
-    camera.position.setZ(30);
 
-    loadingScreen = loadingScreen = {
-        scene: new THREE.Scene(),
-        camera: new THREE.PerspectiveCamera(90, window.innerWidth / innerHeight, 0.1, 100),
-        box: new THREE.Mesh(
-            new THREE.BoxGeometry(0.5,0.5,0.5),
-            new THREE.MeshBasicMaterial({color: colors[2]})
-        )
-    }
-
-    loadingScreen.box.position.set(0,0,5);
-    loadingScreen.camera.lookAt(loadingScreen.box.position);
-    loadingScreen.scene.add(loadingScreen.box);
+    loadingScreen = new defaultLoadingScreen(colors);
+    pauseScreen = new defaultPauseScreen(colors);
+    pauseScreen.init(clock);
 
     THREE.DefaultLoadingManager.onProgress = function(item, loaded, total) {
         console.log(item, loaded, total);
@@ -59,22 +50,6 @@ function init() {
         RESCOURCES_LOADED = true;
         onRescourcesLoaded();
     }
-
-    // mltLoader = new MTLLoader();
-    // mltLoader.load("models/craft_speederD.mtl", function(materials) {
-    //     materials.preload();
-    //     objLoader = new OBJLoader();
-    //     objLoader.setMaterials(materials);
-
-
-    //     objLoader.load("models/craft_speederD.obj", function(mesh) {
-    //         player = mesh;
-    //         player.scale.x = 9;
-    //         player.scale.y = 9;
-    //         player.scale.z = 9;
-    //         scene.add(player)
-    //     })
-    // })
 
     for (var _key in models) {
         (function(key){
@@ -139,37 +114,8 @@ function init() {
     controls.autoForward = false;
     controls.dragToLook = false;
 
-    // Pause screen and loading screen
-    blocker = document.getElementById("blocker");
-    instructions = document.getElementById("instructions");
-
-    text = document.getElementById("text");
-    info = document.getElementById("info");
-    title = document.getElementById("title");
-
-    loadingText = document.getElementById("loading-text");
-
-    text.innerHTML = "Welcome to spaceshooter.js<br />This game is still WIP. If you find any bugs please report them at robin@geheimsite.nl<br />Also, have fun playing. There is no goal yet, but in the future there will be enemies trying to shoot you.<br />Press Escape to pause the game if you want to. Enjoy!";
-
-    info.innerHTML = "<b>WASD</b> move, <b>R|F</b> up | down, <b>Q|E</b> roll, <b>up|down</b> pitch, <b>left|right</b> yaw";
-
-    title.innerHTML = "Click to play"
-
-    instructions.addEventListener("click", () => {
-        PAUSED = false;
-        clock.start();
-    });
-
-    document.addEventListener("keydown", function (event) {
-        if (event.key == "Escape") {
-            PAUSED = true;
-            clock.stop();
-        }
-    });
-
-    for (var i = 0; i < 700; i++) {
-        const ring = new Ring(scene, USE_WIREFRAME, colors[2]);
-    }
+    // Rings
+    const rings = new spawnRings(700, scene, USE_WIREFRAME, colors);
 
     // Render the scene for the first time
     renderer.render(scene, camera);
@@ -183,33 +129,19 @@ function animate() {
     if(!RESCOURCES_LOADED) {
         requestAnimationFrame(animate);
 
-        instructions.style.display = "none";
-        blocker.style.display = "none";
-
-        loadingScreen.box.rotation.x += 0.01;
-        loadingScreen.box.rotation.y += 0.01;
-        loadingScreen.box.rotation.z += 0.01;
-
-        renderer.render(loadingScreen.scene, loadingScreen.camera);
+        loadingScreen.update(renderer);
 
         return;
     } else {
-        loadingText.style.display = "none";
+        loadingScreen.loadingText.style.display = "none";
     }
 
     requestAnimationFrame(animate);
 
-    if (!PAUSED) {
-        instructions.style.display = "none";
-        blocker.style.display = "none";
+    if(pauseScreen.isPaused()) return; // If the game is paused, it shouldn't be rendered.
 
-        renderer.render(scene, camera);
-
-        controls.update(clock.getDelta());
-    } else {
-        blocker.style.display = "block";
-        instructions.style.display = "";
-    }
+    renderer.render(scene, camera);
+    controls.update(clock.getDelta());
 }
 
 function onWindowResize() {
