@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-class defaultLoadingScreen {
+class loadingScreenComponent {
     constructor(colors) {
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / innerHeight, 0.1, 100);
@@ -20,7 +20,7 @@ class defaultLoadingScreen {
         this.scene.add(this.box);
     }
 
-    update(renderer, speed) {
+    animate(renderer, speed) {
 
         if(!speed) speed = 1
 
@@ -31,9 +31,14 @@ class defaultLoadingScreen {
         renderer.render(this.scene, this.camera);
     }
 
+    onWindowResize() {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+    }
+
 }
 
-class defaultPauseScreen {
+class pauseScreenComponent {
     constructor() {
         this.blocker = document.getElementById("blocker");
         this.instructions = document.getElementById("instructions");
@@ -58,6 +63,10 @@ class defaultPauseScreen {
                 this.pause(clock);
             }
         });
+
+        // Hide pause screen on loadingscreen
+        this.instructions.style.display = "none";
+        this.blocker.style.display = "none";
         
     }
 
@@ -93,4 +102,4 @@ class UI {
     }
 }
 
-export { defaultLoadingScreen, defaultPauseScreen };
+export { loadingScreenComponent, pauseScreenComponent };
