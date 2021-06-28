@@ -1,9 +1,10 @@
 import { EventDispatcher, Quaternion, Vector3 } from "three/build/three.module.js";
+import * as THREE from "three";
 
 const _changeEvent = { type: "change" };
 
 class flyControls extends EventDispatcher {
-    constructor(object, domElement) {
+    constructor(object, domElement, scene) {
         super();
 
         if (domElement === undefined) {
@@ -13,6 +14,10 @@ class flyControls extends EventDispatcher {
 
         this.object = object;
         this.domElement = domElement;
+
+        // For shooting
+        this.scene = scene;
+        this.bullets = [];
 
         // API
 
@@ -173,7 +178,8 @@ class flyControls extends EventDispatcher {
                         this.moveState.forward = 1;
                         break;
                     case 2:
-                        this.moveState.back = 1;
+                        // this.moveState.back = 1;
+                        this.shoot();
                         break;
                 }
 
@@ -295,6 +301,52 @@ class flyControls extends EventDispatcher {
 
         this.updateMovementVector();
         this.updateRotationVector();
+    }
+
+    shoot() {
+        let bullet = new THREE.Mesh(new THREE.SphereGeometry(0.2,8,8), new THREE.MeshBasicMaterial({color: 0x000000}))
+    
+        const timeout = 4;
+    
+        bullet.position.set(
+            this.object.position.x, 
+            this.object.position.y, 
+            this.object.position.z
+        );
+
+        bullet.velocity = new THREE.Vector3(
+			-Math.sin(this.object.rotation.y),
+			0,
+			Math.cos(this.object.rotation.y)
+		);
+    
+        bullet.alive = true;
+        setTimeout(() => {
+            bullet.alive = false;
+            this.scene.remove(bullet);
+        }, timeout*1000);
+    
+        this.scene.add(bullet);
+        this.bullets.push(bullet);
+
+        console.log("Shot fired.");
+    }
+
+    updateBullets() {
+
+        let bullets = this.bullets;
+
+        for(var index=0; index<bullets.length; index+=1){
+            if( bullets[index] === undefined ) continue;
+            if( bullets[index].alive == false ){
+                bullets.splice(index,1);
+                continue;
+            }
+            
+            bullets[index].position.add(bullets[index].velocity);
+        }
+
+        this.bullets = bullets;
     }
 }
 

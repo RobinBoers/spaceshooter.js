@@ -48,6 +48,10 @@ class assetLoadingManager {
         this.models = models;
     }
 
+    getModel(key) {
+        if(this.meshes[key]) return this.meshes[key];
+    }
+
     onRescourcesLoaded(graphics) {
         console.log("Loaded rescources.");
         

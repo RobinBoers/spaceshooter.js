@@ -54,7 +54,7 @@ class pauseScreenComponent {
     init(clock) {
         this.title.innerHTML = "Click to play";
         this.text.innerHTML = "Welcome to spaceshooter.js<br />This game is still WIP. If you find any bugs please report them at robin@geheimsite.nl<br />Also, have fun playing. There is no goal yet, but in the future there will be enemies trying to shoot you.<br />Press Escape to pause the game if you want to. Enjoy!";
-        this.info.innerHTML = "<b>WASD</b> move, <b>R|F</b> up | down, <b>Q|E</b> roll, <b>up|down</b> pitch, <b>left|right</b> yaw";
+        this.info.innerHTML = "<b>WASD</b> move, <b>R|F</b> up | down, <b>Q|E</b> roll, <b>up|down</b> pitch, <b>left|right</b> yaw, <b>left click</b> warp, <b>right click</b> shoot";
 
         this.instructions.addEventListener("click", () => {            
             this.resume(clock);

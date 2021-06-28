@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-class Rings {
+class ringsComponent {
     constructor(count, scene, USE_WIREFRAME, colors) {
 
         // Required options
@@ -39,4 +39,4 @@ class Rings {
     
 }
 
-export { Rings };
+export { ringsComponent };
