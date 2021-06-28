@@ -314,11 +314,8 @@ class flyControls extends EventDispatcher {
             this.object.position.z
         );
 
-        bullet.velocity = new THREE.Vector3(
-			-Math.sin(this.object.rotation.y),
-			0,
-			Math.cos(this.object.rotation.y)
-		);
+        var vector = new THREE.Vector3();
+        bullet.velocity = this.object.getWorldDirection(vector);
     
         bullet.alive = true;
         setTimeout(() => {
