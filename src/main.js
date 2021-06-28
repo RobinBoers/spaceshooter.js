@@ -43,7 +43,7 @@ function init() {
         RESCOURCES_LOADED = true;
 
         // Render the scene for the first time
-        graphics.renderer.render(graphics.scene, graphics.camera);
+        graphics.composer.render();
 
         // Pause the game
         pauseScreen.pause(clock);
@@ -90,7 +90,8 @@ function tick() {
 
     if(pauseScreen.isPaused()) return; // If the game is paused, it shouldn't be rendered.
 
-    graphics.renderer.render(graphics.scene, graphics.camera);
+    // graphics.renderer.render(graphics.scene, graphics.camera);
+    graphics.composer.render();
     controls.update(clock.getDelta());
     controls.updateBullets();
 }

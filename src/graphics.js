@@ -1,4 +1,10 @@
 import * as THREE from "three";
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+
+// import { TechnicolorShader } from 'three/examples/jsm/shaders/TechnicolorShader.js';
+// import { PixelShader } from 'three/examples/jsm/shaders/PixelShader.js';
 
 class graphicsComponent {
     constructor() {
@@ -10,6 +16,7 @@ class graphicsComponent {
             canvas: document.querySelector("#bg"),
             antialias: true,
         });
+        this.composer = new EffectComposer(this.renderer);
 
         this.USE_WIREFRAME = false;
 
@@ -29,6 +36,9 @@ class graphicsComponent {
         this.renderer.setClearColor(this.colors[0], 1);
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        this.composer.addPass(new RenderPass(this.scene, this.camera));
+        // this.composer.addPass(new ShaderPass(PixelShader));
 
         this.directionalLight.position.set(5, 5, 5);
         this.directionalLight.castShadow = true;
