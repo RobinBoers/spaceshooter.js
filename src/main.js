@@ -1,13 +1,13 @@
 import "./style.css";
 import * as THREE from "three";
 
-import { FlyControls } from "./flycontrols-component";
-import { spawnRings } from "./rings-component";
+import { flyControls } from "./flycontrols-component";
+import { Rings } from "./rings-component";
 import { loadingScreenComponent, pauseScreenComponent } from "./ui-component";
 import { graphicsComponent } from "./graphics"
 import { assetLoadingManager } from "./loading-manager"
 
-let graphics, controls, manager;
+let graphics, controls, manager, rings;
 let loadingScreen, pauseScreen;
 
 const clock = new THREE.Clock();
@@ -58,7 +58,7 @@ function init() {
     });
 
     // Controls
-    controls = new FlyControls(graphics.camera, graphics.renderer.domElement);
+    controls = new flyControls(graphics.camera, graphics.renderer.domElement);
 
     controls.movementSpeed = 100;
     controls.domElement = graphics.renderer.domElement;
@@ -67,7 +67,8 @@ function init() {
     controls.dragToLook = false;
 
     // Rings
-    const rings = new spawnRings(700, graphics.scene, graphics.USE_WIREFRAME, graphics.colors);
+    rings = new Rings(700, graphics.scene, graphics.USE_WIREFRAME, graphics.colors);
+    rings.spawnRings();
 
     // Start the animation loop thingie
     tick();

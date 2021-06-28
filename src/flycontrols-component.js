@@ -2,12 +2,12 @@ import { EventDispatcher, Quaternion, Vector3 } from "three/build/three.module.j
 
 const _changeEvent = { type: "change" };
 
-class FlyControls extends EventDispatcher {
+class flyControls extends EventDispatcher {
     constructor(object, domElement) {
         super();
 
         if (domElement === undefined) {
-            console.warn('THREE.FlyControls: The second parameter "domElement" is now mandatory.');
+            console.warn('flyControls: The second parameter "domElement" is now mandatory.');
             domElement = document;
         }
 
@@ -302,4 +302,4 @@ function contextmenu(event) {
     event.preventDefault();
 }
 
-export { FlyControls };
+export { flyControls };

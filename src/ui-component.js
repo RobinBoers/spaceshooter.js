@@ -2,6 +2,8 @@ import * as THREE from "three";
 
 class loadingScreenComponent {
     constructor(colors) {
+        if(!colors) colors = [ 0x000000, 0x000000, 0xff6347, 0x000000 ];
+
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / innerHeight, 0.1, 100);
         this.box = new THREE.Mesh(

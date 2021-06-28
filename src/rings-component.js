@@ -1,11 +1,11 @@
 import * as THREE from "three";
 
-class spawnRings {
+class Rings {
     constructor(count, scene, USE_WIREFRAME, colors) {
 
         // Required options
-        if(!count) console.log("Count is requierd!");
-        if(!scene) console.log("Scene is requierd!");
+        if(!count) {console.warn("spawnRings: 'count' parameter is requierd."); return;}
+        if(!scene) {console.warn("spawnRings: 'scene' parameter is requierd."); return;}
 
         // Optional options
         if(!USE_WIREFRAME) USE_WIREFRAME = false;
@@ -15,12 +15,10 @@ class spawnRings {
         this.scene = scene;
         this.USE_WIREFRAME = USE_WIREFRAME;
         this.colors = colors;
-
-        this.init();
         
     }
 
-    init() {
+    spawnRings() {
         for (var i = 0; i < this.count; i++) {
             this.addRing(this.scene, this.USE_WIREFRAME, this.colors[2]);
         }
@@ -41,4 +39,4 @@ class spawnRings {
     
 }
 
-export { spawnRings };
+export { Rings };

@@ -7,6 +7,10 @@ import { OBJLoader } from "./obj-loader";
 class assetLoadingManager {
     constructor(models) {
 
+        if(!models) {
+            console.warn("assetLoadingManager: 'models' parameter is requierd.")
+        }
+
         this.models = models;
         this.meshes = {};
 
