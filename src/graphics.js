@@ -4,7 +4,7 @@ class graphicsComponent {
     constructor() {
         this.colors = [ 0xdddddd, 0x000000, 0xff6347, 0xffffff ];
 
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / innerHeight, 0.1, 1000);
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / innerHeight, 0.1, 5000);
         this.scene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer({
             canvas: document.querySelector("#bg"),
@@ -44,7 +44,7 @@ class graphicsComponent {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.render(graphics.scene, graphics.camera);
+        this.renderer.render(this.scene, this.camera);
     }
 }
 

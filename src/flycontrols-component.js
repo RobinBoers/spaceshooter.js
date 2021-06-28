@@ -53,12 +53,18 @@ class flyControls extends EventDispatcher {
                 return;
             }
 
-            //event.preventDefault();
+            event.preventDefault();
 
             switch (event.code) {
-                case "Shift":
-                    // this.movementSpeedMultiplier = 0.1;
+                case "ControlLeft":
                     this.moveSpeedupper = 4.5;
+                    break;
+                case "ShiftLeft":
+                    // this.movementSpeedMultiplier = 1;
+                    this.moveState.down = 1;
+                    break;
+                case "Space": // spacebar
+                    this.moveState.up = 1;
                     break;
 
                 case "KeyW":
@@ -109,14 +115,20 @@ class flyControls extends EventDispatcher {
         };
 
         this.keyup = function (event) {
-            switch (event.code) {
-                case "Shift":
-                    // this.movementSpeedMultiplier = 1;
-                    this.moveSpeedupper = 1;
-                    break;
 
+            event.preventDefault();
+
+            switch (event.code) {
+                case "ShiftLeft":
+                    // this.movementSpeedMultiplier = 1;
+                    this.moveState.down = 0;
+                    break;
+                case "Space": // spacebar
+                    this.moveState.up = 0;
+                    break;
                 case "KeyW":
                     this.moveState.forward = 0;
+                    this.moveSpeedupper = 1;
                     break;
                 case "KeyS":
                     this.moveState.back = 0;
@@ -193,8 +205,10 @@ class flyControls extends EventDispatcher {
                 const halfWidth = container.size[0] / 2;
                 const halfHeight = container.size[1] / 2;
 
-                this.moveState.yawLeft = -(event.pageX - container.offset[0] - halfWidth) / halfWidth;
-                this.moveState.pitchDown = (event.pageY - container.offset[1] - halfHeight) / halfHeight;
+                const accel = 5;
+
+                this.moveState.yawLeft = -(event.pageX - container.offset[0] - halfWidth) / halfWidth *accel;
+                this.moveState.pitchDown = (event.pageY - container.offset[1] - halfHeight) / halfHeight *accel;
 
                 this.updateRotationVector();
             }

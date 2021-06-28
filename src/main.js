@@ -53,7 +53,7 @@ function init() {
     }
 
     window.addEventListener("resize", () => {
-        graphic.onWindowResize();
+        graphics.onWindowResize();
         loadingScreen.onWindowResize();
     });
 

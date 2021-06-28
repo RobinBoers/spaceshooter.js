@@ -55,12 +55,26 @@ class assetLoadingManager {
     onRescourcesLoaded(graphics) {
         console.log("Loaded rescources.");
         
-        this.meshes["player"] = Object.assign(this.models.ship.mesh);
-    
+        this.meshes["player"] = this.models.ship.mesh.clone();
+        this.meshes["miner"] = this.models.miner.mesh.clone();
+        this.meshes["miner2"] = this.models.miner.mesh.clone();
+        
         this.meshes["player"].scale.x = 9;
         this.meshes["player"].scale.y = 9;
         this.meshes["player"].scale.z = 9;
         graphics.scene.add(this.meshes["player"]);
+
+        this.meshes["miner"].scale.x = 200;
+        this.meshes["miner"].scale.y = 200;
+        this.meshes["miner"].scale.z = 200;
+        this.meshes["miner"].position.set(300,600,-900);
+        graphics.scene.add(this.meshes["miner"]);
+
+        this.meshes["miner2"].scale.x = 200;
+        this.meshes["miner2"].scale.y = 200;
+        this.meshes["miner2"].scale.z = 200;
+        this.meshes["miner2"].position.set(-20,60,-15);
+        graphics.scene.add(this.meshes["miner2"]);
     
         graphics.renderer.render(graphics.scene, graphics.camera); // Render the first frame of the game to replace the loading screen
     }
