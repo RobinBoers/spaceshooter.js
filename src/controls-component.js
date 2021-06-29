@@ -299,7 +299,9 @@ class Controls extends EventDispatcher {
                     bullets.splice(index,1);
                     continue;
                 }
-                
+                                
+                bullets[index].position.add(bullets[index].velocity);
+                bullets[index].position.add(bullets[index].velocity);
                 bullets[index].position.add(bullets[index].velocity);
             }
 
@@ -349,7 +351,12 @@ class Controls extends EventDispatcher {
         };
 
         this.shoot = function() {
-                let bullet = new THREE.Mesh(new THREE.SphereGeometry(0.2,8,8), new THREE.MeshBasicMaterial({color: 0x000000}));
+                let bullet = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.2,8,8), 
+                    new THREE.MeshBasicMaterial({
+                        color: 0x000000
+                    })
+                );
         
                 if (this.ammo <= 0 || this.reloading == true) {
                     console.log("No ammo or reloading.");

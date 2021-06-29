@@ -120,7 +120,7 @@ b {
 }
 
 #health-bar .bar {
-    background: rgb(136, 18, 0);
+    background: rgb(175, 23, 0);
 }
 #speed-bar .bar {
     background: rgb(68, 143, 204);
@@ -130,8 +130,7 @@ b {
     width: 100%;
     height: 100%;
     position: relative;
-    
-    transition: width .5s linear;
+    transition: width .1s linear;
 }
 
 #ammo-display {
