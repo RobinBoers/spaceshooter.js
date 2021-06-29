@@ -94,14 +94,47 @@ class pauseScreenComponent {
     }
 }
 
-class UI {
-    constructor() {
-        init();
+class HUD {
+    constructor(maxHealth, maxSpeed, maxAmmo) {
+        
+        this.element = document.getElementById("hud");
+        this.healthDisplay = document.getElementById("health-display");
+        this.speedDisplay = document.getElementById("speed-display");
+        this.ammoDisplay = document.getElementById("ammo-display");
+
+        this.maxHealth = maxHealth;
+        this.maxSpeed = maxSpeed;
+        this.maxAmmo = maxAmmo;
+
+        this.init();
     }
 
     init() {
+        this.health = this.maxHealth;
+        this.speed = this.maxSpeed;
+        this.ammo = this.maxAmmo;
+        
+        this.hide();
+        this.update(this.health, this.speed, this.ammo);
+    }
 
+    hide() {
+        this.element.style.display = "none";
+    }
+
+    unhide() {
+        this.element.style.display = "";
+    }
+
+    update(health, speed, ammo) {
+        this.health = health;
+        this.speed = speed;
+        this.ammo = ammo;
+        
+        this.healthDisplay.style.width = (this.health / this.maxHealth) * 100;
+        this.healthDisplay.style.width = (this.speed / this.maxSpeed) * 100;
+        this.ammoDisplay.innerHTML = this.ammo + " / " + this.maxAmmo;
     }
 }
 
-export { loadingScreenComponent, pauseScreenComponent };
+export { loadingScreenComponent, pauseScreenComponent, HUD };

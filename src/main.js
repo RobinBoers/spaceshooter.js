@@ -3,12 +3,20 @@ import * as THREE from "three";
 
 import { flyControls } from "./flycontrols-component";
 import { ringsComponent } from "./rings-component";
-import { loadingScreenComponent, pauseScreenComponent } from "./ui-component";
+import { loadingScreenComponent, pauseScreenComponent, HUD } from "./ui-component";
 import { graphicsComponent } from "./graphics"
 import { assetLoadingManager } from "./loading-manager"
 
-let graphics, controls, manager, rings;
+let graphics, controls, manager, hud, rings;
 let loadingScreen, pauseScreen;
+
+let maxHealth = 100;
+let maxSpeed = 150;
+let maxAmmo = 10;
+
+let health = maxHealth;
+let speed = maxSpeed;
+let ammo = maxAmmo;
 
 const clock = new THREE.Clock();
 
@@ -50,6 +58,8 @@ function init() {
 
         // Load models and other crap
         manager.onRescourcesLoaded(graphics);
+
+        hud.unhide();
     }
 
     window.addEventListener("resize", () => {
@@ -69,6 +79,9 @@ function init() {
     // Rings
     rings = new ringsComponent(700, graphics.scene, graphics.USE_WIREFRAME, graphics.colors);
     rings.spawnRings();
+
+    // HUD
+    hud = new HUD(maxHealth, maxSpeed, maxAmmo);
 
     // Start the animation loop thingie
     tick();
