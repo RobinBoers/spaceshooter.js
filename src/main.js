@@ -12,7 +12,7 @@ let loadingScreen, pauseScreen;
 
 let maxHealth = 100;
 let maxSpeed = 150;
-let maxAmmo = 10;
+let maxAmmo = 30;
 
 let health = maxHealth;
 let speed = maxSpeed;
@@ -70,12 +70,19 @@ function init() {
     // Controls
     controls = new Controls(graphics.camera, graphics.renderer.domElement, graphics.scene);
 
+    controls.maxAmmo = maxAmmo;
     controls.ammo = maxAmmo;
+
     controls.movementSpeed = 100;
     controls.domElement = graphics.renderer.domElement;
     controls.rollSpeed = Math.PI / 24;
     controls.autoForward = false;
     controls.dragToLook = false;
+
+    controls.maxSpeedTime = maxSpeed;
+    controls.speedTimeLeft = maxSpeed;
+
+    controls.godMode = true;
 
     // Rings
     rings = new ringsComponent(700, graphics.scene, graphics.USE_WIREFRAME, graphics.colors);
@@ -105,6 +112,7 @@ function tick() {
     if(pauseScreen.isPaused()) return; // If the game is paused, it shouldn't be rendered.
 
     // graphics.renderer.render(graphics.scene, graphics.camera);
+    hud.update(100, controls.speedTimeLeft, controls.ammo)
     graphics.composer.render();
     controls.update(clock.getDelta());
 }

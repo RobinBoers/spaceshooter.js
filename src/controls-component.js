@@ -18,7 +18,15 @@ class Controls extends EventDispatcher {
         // For shooting
         this.scene = scene;
         this.bullets = [];
-        this.ammo = 10;
+        this.maxAmmo = this.ammo = null;      
+        this.reloading = false;  
+        this.godMode = false;
+
+        // Warp speed (left click)
+        this.moveSpeedupper = 1;
+        this.maxSpeedTime = null;
+        this.speedTimeLeft = this.maxSpeedTime;
+        this.mouseDown = false;
 
         // API
 
@@ -43,8 +51,6 @@ class Controls extends EventDispatcher {
 
         this.mouseStatus = 0;
 
-        this.moveSpeedupper = 1;
-
         this.moveState = { up: 0, down: 0, left: 0, right: 0, forward: 0, back: 0, pitchUp: 0, pitchDown: 0, yawLeft: 0, yawRight: 0, rollLeft: 0, rollRight: 0 };
         this.moveVector = new Vector3(0, 0, 0);
         this.rotationVector = new Vector3(0, 0, 0);
@@ -57,15 +63,22 @@ class Controls extends EventDispatcher {
             event.preventDefault();
 
             switch (event.code) {
-                case "ControlLeft":
-                    this.moveSpeedupper = 4.5;
-                    break;
                 case "ShiftLeft":
                     // this.movementSpeedMultiplier = 1;
                     this.moveState.down = 1;
                     break;
                 case "Space": // spacebar
                     this.moveState.up = 1;
+                    break;
+
+                case "ShiftRight":
+                    // this.movementSpeedMultiplier = 1;
+                    this.moveSpeedupper = 4.5;
+                    this.mouseDown = true;
+                    break;
+
+                case "KeyT":
+                    this.reload()
                     break;
 
                 case "KeyW":
@@ -127,9 +140,14 @@ class Controls extends EventDispatcher {
                 case "Space": // spacebar
                     this.moveState.up = 0;
                     break;
+
+                case "ShiftRight":
+                    this.moveSpeedupper = 1;
+                    this.mouseDown = false;
+                    break;
+                
                 case "KeyW":
                     this.moveState.forward = 0;
-                    this.moveSpeedupper = 1;
                     break;
                 case "KeyS":
                     this.moveState.back = 0;
@@ -187,6 +205,7 @@ class Controls extends EventDispatcher {
             } else {
                 switch (event.button) {
                     case 0:
+                        this.mouseDown = true;
                         this.moveSpeedupper = 4.5;
                         this.moveState.forward = 1;
                         break;
@@ -225,6 +244,7 @@ class Controls extends EventDispatcher {
             } else {
                 switch (event.button) {
                     case 0:
+                        this.mouseDown = false;
                         this.moveSpeedupper = 1;
                         this.moveState.forward = 0;
                         break;
@@ -240,7 +260,20 @@ class Controls extends EventDispatcher {
         };
 
         this.update = function (delta) {
-            const moveMult = delta * scope.movementSpeed * scope.moveSpeedupper;
+
+            let moveSpeedupper = scope.moveSpeedupper;
+
+            if(!scope.godMode) {
+                if(scope.speedTimeLeft < 0) moveSpeedupper = 1; // when no warp speed mana left anymore, stop the warp speed motors.
+
+                if(moveSpeedupper > 1) { // remove warptime if using warpspeed
+                    scope.speedTimeLeft -= 1;
+                } else if(scope.speedTimeLeft < scope.maxSpeedTime && !scope.mouseDown) { // add it when not using warpspeed
+                    scope.speedTimeLeft += 1
+                }
+            }
+
+            const moveMult = delta * scope.movementSpeed * moveSpeedupper;
             const rotMult = delta * scope.rollSpeed;
 
             scope.object.translateX(scope.moveVector.x * moveMult);
@@ -318,8 +351,11 @@ class Controls extends EventDispatcher {
         this.shoot = function() {
                 let bullet = new THREE.Mesh(new THREE.SphereGeometry(0.2,8,8), new THREE.MeshBasicMaterial({color: 0x000000}));
         
-                if (this.ammo <= 0) return;
-                this.ammo -= 1;
+                if (this.ammo <= 0 || this.reloading == true) {
+                    console.log("No ammo or reloading.");
+                    return;
+                };
+                if(!this.godMode) this.ammo -= 1;
             
                 const timeout = 4;
             
@@ -342,6 +378,25 @@ class Controls extends EventDispatcher {
                 this.bullets.push(bullet);
         
                 console.log("Shot fired.");
+        };
+
+        this.reload = function () {
+            if(this.reloading) return; // return if already reloading.
+            if(this.ammo == this.maxAmmo) return; // return of already full
+            this.reloading = true;
+
+            for(let i = 0; i < scope.maxAmmo;i++) {
+                setTimeout(() => {
+
+                    if(scope.ammo == scope.maxAmmo) { // when full cancel the function
+                        this.reloading = false;
+                        return;
+                    }
+
+                    scope.ammo += 1;
+
+                }, 200*i);
+            }
         }
 
         const _mousemove = this.mousemove.bind(this);
