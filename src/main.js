@@ -1,7 +1,7 @@
 import "./style.css";
 import * as THREE from "three";
 
-import { flyControls } from "./flycontrols-component";
+import { Controls } from "./controls-component";
 import { ringsComponent } from "./rings-component";
 import { loadingScreenComponent, pauseScreenComponent, HUD } from "./ui-component";
 import { graphicsComponent } from "./graphics"
@@ -68,8 +68,9 @@ function init() {
     });
 
     // Controls
-    controls = new flyControls(graphics.camera, graphics.renderer.domElement, graphics.scene);
+    controls = new Controls(graphics.camera, graphics.renderer.domElement, graphics.scene);
 
+    controls.ammo = maxAmmo;
     controls.movementSpeed = 100;
     controls.domElement = graphics.renderer.domElement;
     controls.rollSpeed = Math.PI / 24;
@@ -106,5 +107,4 @@ function tick() {
     // graphics.renderer.render(graphics.scene, graphics.camera);
     graphics.composer.render();
     controls.update(clock.getDelta());
-    controls.updateBullets();
 }

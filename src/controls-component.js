@@ -3,7 +3,7 @@ import * as THREE from "three";
 
 const _changeEvent = { type: "change" };
 
-class flyControls extends EventDispatcher {
+class Controls extends EventDispatcher {
     constructor(object, domElement, scene) {
         super();
 
@@ -18,6 +18,7 @@ class flyControls extends EventDispatcher {
         // For shooting
         this.scene = scene;
         this.bullets = [];
+        this.ammo = 10;
 
         // API
 
@@ -254,6 +255,22 @@ class flyControls extends EventDispatcher {
                 lastQuaternion.copy(scope.object.quaternion);
                 lastPosition.copy(scope.object.position);
             }
+
+            // Update bullets
+
+            let bullets = this.bullets;
+
+            for(var index=0; index<bullets.length; index+=1){
+                if( bullets[index] === undefined ) continue;
+                if( bullets[index].alive == false ){
+                    bullets.splice(index,1);
+                    continue;
+                }
+                
+                bullets[index].position.add(bullets[index].velocity);
+            }
+
+            this.bullets = bullets;
         };
 
         this.updateMovementVector = function () {
@@ -298,6 +315,35 @@ class flyControls extends EventDispatcher {
             window.removeEventListener("keyup", _keyup);
         };
 
+        this.shoot = function() {
+                let bullet = new THREE.Mesh(new THREE.SphereGeometry(0.2,8,8), new THREE.MeshBasicMaterial({color: 0x000000}));
+        
+                if (this.ammo <= 0) return;
+                this.ammo -= 1;
+            
+                const timeout = 4;
+            
+                bullet.position.set(
+                    this.object.position.x, 
+                    this.object.position.y, 
+                    this.object.position.z
+                );
+        
+                var vector = new THREE.Vector3();
+                bullet.velocity = this.object.getWorldDirection(vector);
+            
+                bullet.alive = true;
+                setTimeout(() => {
+                    bullet.alive = false;
+                    this.scene.remove(bullet);
+                }, timeout*1000);
+            
+                this.scene.add(bullet);
+                this.bullets.push(bullet);
+        
+                console.log("Shot fired.");
+        }
+
         const _mousemove = this.mousemove.bind(this);
         const _mousedown = this.mousedown.bind(this);
         const _mouseup = this.mouseup.bind(this);
@@ -316,53 +362,10 @@ class flyControls extends EventDispatcher {
         this.updateMovementVector();
         this.updateRotationVector();
     }
-
-    shoot() {
-        let bullet = new THREE.Mesh(new THREE.SphereGeometry(0.2,8,8), new THREE.MeshBasicMaterial({color: 0x000000}))
-    
-        const timeout = 4;
-    
-        bullet.position.set(
-            this.object.position.x, 
-            this.object.position.y, 
-            this.object.position.z
-        );
-
-        var vector = new THREE.Vector3();
-        bullet.velocity = this.object.getWorldDirection(vector);
-    
-        bullet.alive = true;
-        setTimeout(() => {
-            bullet.alive = false;
-            this.scene.remove(bullet);
-        }, timeout*1000);
-    
-        this.scene.add(bullet);
-        this.bullets.push(bullet);
-
-        console.log("Shot fired.");
-    }
-
-    updateBullets() {
-
-        let bullets = this.bullets;
-
-        for(var index=0; index<bullets.length; index+=1){
-            if( bullets[index] === undefined ) continue;
-            if( bullets[index].alive == false ){
-                bullets.splice(index,1);
-                continue;
-            }
-            
-            bullets[index].position.add(bullets[index].velocity);
-        }
-
-        this.bullets = bullets;
-    }
 }
 
 function contextmenu(event) {
     event.preventDefault();
 }
 
-export { flyControls };
+export { Controls };
