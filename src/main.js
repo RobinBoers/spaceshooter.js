@@ -82,7 +82,7 @@ function init() {
     controls.maxSpeedTime = maxSpeed;
     controls.speedTimeLeft = maxSpeed;
 
-    controls.godMode = true;
+    controls.godMode = false;
 
     // Rings
     rings = new ringsComponent(700, graphics.scene, graphics.USE_WIREFRAME, graphics.colors);
