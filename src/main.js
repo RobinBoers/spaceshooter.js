@@ -3,12 +3,12 @@ import * as THREE from "three";
 
 import { Controls } from "./controls-component";
 import { ringsComponent } from "./rings-component";
-import { loadingScreenComponent, pauseScreenComponent, HUD } from "./ui-component";
+import { loadingScreenComponent, pauseScreenComponent, menuScreenComponent, HUD } from "./ui-component";
 import { graphicsComponent } from "./graphics"
 import { assetLoadingManager } from "./loading-manager"
 
 let graphics, controls, manager, hud, rings;
-let loadingScreen, pauseScreen;
+let loadingScreen, pauseScreen, menuScreen;
 
 let maxHealth = 100;
 let maxSpeed = 150;
@@ -43,7 +43,10 @@ function init() {
 
     loadingScreen = new loadingScreenComponent(graphics.colors);
     pauseScreen = new pauseScreenComponent();
-    pauseScreen.init(clock);
+
+    menuScreen = new menuScreenComponent(graphics.scene, graphics.colors);
+    menuScreen.lookAtCursor = false;
+    menuScreen.init();
 
     manager = new assetLoadingManager(models);
 
@@ -54,17 +57,19 @@ function init() {
         graphics.composer.render();
 
         // Pause the game
-        pauseScreen.pause(clock);
+        // pauseScreen.init(clock);
+        // pauseScreen.pause(clock);
 
         // Load models and other crap
         manager.onRescourcesLoaded(graphics);
 
-        hud.unhide();
+        // hud.unhide();
     }
 
     window.addEventListener("resize", () => {
         graphics.onWindowResize();
         loadingScreen.onWindowResize();
+        menuScreen.onWindowResize();
     });
 
     // Controls
@@ -82,7 +87,7 @@ function init() {
     controls.maxSpeedTime = maxSpeed;
     controls.speedTimeLeft = maxSpeed;
 
-    controls.godMode = false;
+    controls.godMode = true;
 
     // Rings
     rings = new ringsComponent(700, graphics.scene, graphics.USE_WIREFRAME, graphics.colors);
@@ -108,6 +113,13 @@ function tick() {
     }
 
     requestAnimationFrame(tick);
+
+    if(!menuScreen.GAME_STARTED) {
+        menuScreen.animate(graphics.renderer, clock);
+        return;
+    } else {
+        console.log("konijn")
+    }
 
     if(pauseScreen.isPaused()) return; // If the game is paused, it shouldn't be rendered.
 

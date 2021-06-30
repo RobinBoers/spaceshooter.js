@@ -1,6 +1,7 @@
 import { EventDispatcher, Quaternion, Vector3 } from "three/build/three.module.js";
 import * as THREE from "three";
 
+
 const _changeEvent = { type: "change" };
 
 class Controls extends EventDispatcher {
@@ -8,7 +9,7 @@ class Controls extends EventDispatcher {
         super();
 
         if (domElement === undefined) {
-            console.warn('flyControls: The second parameter "domElement" is now mandatory.');
+            console.warn('Controls: The second parameter "domElement" is now mandatory.');
             domElement = document;
         }
 
