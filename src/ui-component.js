@@ -111,6 +111,16 @@ class HUD {
         this.init();
     }
 
+    updateStats(maxHealth, maxSpeed, maxAmmo) {
+        this.maxHealth = maxHealth;
+        this.maxSpeed = maxSpeed;
+        this.maxAmmo = maxAmmo;
+
+        this.health = this.maxHealth;
+        this.speed = this.maxSpeed;
+        this.ammo = this.maxAmmo;
+    }
+
     init() {
         this.health = this.maxHealth;
         this.speed = this.maxSpeed;
@@ -157,6 +167,32 @@ class menuScreenComponent {
         this.skins = [];
         this.textures = ["./skins/cyborgFemaleA.png", "./skins/criminalMaleA.png", "./skins/skaterFemaleA.png", "./skins/skaterMaleA.png"];
         this.names = ["Lila", "Juan", "Egg", "Robby"];
+        this.stats = [
+            {
+                hp: 100,
+                warp: 250,
+                speed: 100,
+                ammo: 30
+            },
+            {
+                hp: 160,
+                warp: 120,
+                speed: 90,
+                ammo: 50
+            },
+            {
+                hp: 95,
+                warp: 160,
+                speed: 130,
+                ammo: 21
+            },
+            {
+                hp: 105,
+                warp: 150,
+                speed: 180,
+                ammo: 25
+            },
+        ]
 
         this.loader = new FBXLoader();
 
@@ -266,11 +302,16 @@ class menuScreenComponent {
             }
         });
 
+        this.health = this.stats[num].hp;
+        this.warp = this.stats[num].warp;
+        this.speed = this.stats[num].speed;
+        this.ammo = this.stats[num].ammo;
+
         this.playerName.innerHTML = scope.names[num];
-        this.playerHealth.innerHTML = "<b>Health:</b> 100";
-        this.playerWarp.innerHTML = "<b>Warp time:</b> 150";
-        this.playerSpeed.innerHTML = "<b>Speed:</b> 65";
-        this.playerAmmo.innerHTML = "<b>Ammo:</b> 30";
+        this.playerHealth.innerHTML = "<b>Health:</b> "+this.health;
+        this.playerWarp.innerHTML = "<b>Warp time:</b> "+this.warp;
+        this.playerSpeed.innerHTML = "<b>Speed:</b> "+this.speed;
+        this.playerAmmo.innerHTML = "<b>Ammo:</b> "+this.ammo;
 
         this.currentSkin = num;
 

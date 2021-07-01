@@ -120,17 +120,19 @@ b {
 }
 
 #health-bar .bar {
-    background: rgb(175, 23, 0);
+    background: #E53935;
+    border: 3px solid #c43b37;
 }
 #speed-bar .bar {
-    background: rgb(68, 143, 204);
-
+    background: #0288d1;
+    border: 3px solid #107ab5;
 }
 .bar {
     width: 100%;
     height: 100%;
     position: relative;
     transition: width .1s linear;
+    border-radius: 3px;
 }
 
 #ammo-display {

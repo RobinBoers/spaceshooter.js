@@ -11,12 +11,9 @@ let graphics, controls, manager, hud, rings;
 let loadingScreen, pauseScreen, menuScreen;
 
 let maxHealth = 100;
-let maxSpeed = 150;
+let maxWarp = 150;
+let maxSpeed = 100;
 let maxAmmo = 30;
-
-let health = maxHealth;
-let speed = maxSpeed;
-let ammo = maxAmmo;
 
 const clock = new THREE.Clock();
 
@@ -66,8 +63,31 @@ function init() {
             // Pause the game
             pauseScreen.init(clock);
 
-            // Show hud
+            maxHealth = menuScreen.health;
+            maxWarp = menuScreen.warp;
+            maxSpeed = menuScreen.speed;
+            maxAmmo = menuScreen.ammo;
+
+            // HUD
+            hud.updateStats(maxHealth, maxWarp, maxAmmo)
             hud.show();
+
+            // Controls
+            controls = new Controls(graphics.camera, graphics.renderer.domElement, graphics.scene);
+
+            controls.maxAmmo = maxAmmo;
+            controls.ammo = maxAmmo;
+
+            controls.movementSpeed = maxSpeed;
+            controls.domElement = graphics.renderer.domElement;
+            controls.rollSpeed = Math.PI / 24;
+            controls.autoForward = false;
+            controls.dragToLook = false;
+
+            controls.maxSpeedTime = maxWarp;
+            controls.speedTimeLeft = maxWarp;
+
+            controls.godMode = false;
         });
     };
 
@@ -77,29 +97,12 @@ function init() {
         menuScreen.onWindowResize();
     });
 
-    // Controls
-    controls = new Controls(graphics.camera, graphics.renderer.domElement, graphics.scene);
-
-    controls.maxAmmo = maxAmmo;
-    controls.ammo = maxAmmo;
-
-    controls.movementSpeed = 100;
-    controls.domElement = graphics.renderer.domElement;
-    controls.rollSpeed = Math.PI / 24;
-    controls.autoForward = false;
-    controls.dragToLook = false;
-
-    controls.maxSpeedTime = maxSpeed;
-    controls.speedTimeLeft = maxSpeed;
-
-    controls.godMode = false;
-
     // Rings
     rings = new ringsComponent(50, graphics.scene, graphics.USE_WIREFRAME, graphics.colors);
     rings.spawnRings();
 
     // HUD
-    hud = new HUD(maxHealth, maxSpeed, maxAmmo);
+    hud = new HUD(maxHealth, maxWarp, maxAmmo);
 
     // Start the animation loop thingie
     tick();
