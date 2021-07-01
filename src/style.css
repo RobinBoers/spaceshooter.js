@@ -138,12 +138,20 @@ b {
     padding: 10px;
 }
 
-#menu {
+#menu, #menu-stats {
     position: absolute;
     width: 20%;
-    right: 20%;
     top: 10%;
     z-index: 1;
+}
+
+#menu {
+    right: 20%;
+}
+
+#menu-stats {
+    left: 10%;
+    top: 60%;
 }
 
 #logo {
@@ -151,18 +159,21 @@ b {
     max-height: 250px;
 }
 
-#play-btn {
+button {
     padding: 15px;
     border: 2px solid darkblue;
     background-color: royalblue;
     color: #dddddd;
     font-size: 20px;
-    width: 100%;
     cursor: pointer;
     font-family: monospace;
     margin-top: 20px;
 }
 
-#play-btn:hover {
+#play-btn {
+    width: 100%;
+}
+
+button:hover {
     transform: scale(1.1);
 }

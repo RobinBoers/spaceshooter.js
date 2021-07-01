@@ -124,7 +124,7 @@ class HUD {
         this.element.style.display = "none";
     }
 
-    unhide() {
+    show() {
         this.element.style.display = "";
     }
 
@@ -154,6 +154,10 @@ class menuScreenComponent {
         this.TEXTURE_PATH = "./skins/cyborgFemaleA.png";
         this.ANIMATION_PATH = "./anims/idle.fbx";
 
+        this.skins = [];
+        this.textures = ["./skins/cyborgFemaleA.png", "./skins/criminalMaleA.png", "./skins/skaterFemaleA.png", "./skins/skaterMaleA.png"];
+        this.names = ["Lila", "Juan", "Egg", "Robby"];
+
         this.loader = new FBXLoader();
 
         this.ambientLight = new THREE.AmbientLight(colors[3], 0.6);
@@ -168,7 +172,15 @@ class menuScreenComponent {
         this.logo = document.getElementById("logo");
         this.button = document.getElementById("play-btn");
 
+        this.statsElement = document.getElementById("menu-stats");
+        this.playerName = document.getElementById("player-name");
+        this.playerHealth = document.getElementById("player-hp");
+        this.playerWarp = document.getElementById("player-warp");
+        this.playerSpeed = document.getElementById("player-speed");
+        this.playerAmmo = document.getElementById("player-ammo");
+
         this.init();
+        this.hide();
     }
 
     init() {
@@ -182,11 +194,12 @@ class menuScreenComponent {
 
         // Animated models
 
-        scope.texture = new THREE.TextureLoader().load(scope.TEXTURE_PATH);
- 
-        scope.skin = new THREE.MeshStandardMaterial({
-            map: scope.texture
-        });
+        for(var i=0;i<this.textures.length;i++) {
+            let texture = new THREE.TextureLoader().load(this.textures[i]);
+            scope.skins.push(new THREE.MeshStandardMaterial({
+                map: texture
+            }));
+        }
 
         this.loader.load(
             scope.MODEL_PATH,
@@ -197,7 +210,6 @@ class menuScreenComponent {
                     if (o.isMesh) {
                       o.castShadow = true;
                       o.receiveShadow = true;
-                      o.material = scope.skin;
                     }
                 });
 
@@ -229,15 +241,43 @@ class menuScreenComponent {
               console.error(error);
             }
         );   
+
     }
 
-    open() {
+    switchSkin(num) {
+
+        const scope = this;
+
+        scope.model.traverse(o => {
+            if (o.isMesh) {
+              o.material = scope.skins[num];
+            }
+        });
+
+        this.playerName.innerHTML = scope.names[num];
+        this.playerHealth.innerHTML = "<b>Health:</b> 100";
+        this.playerWarp.innerHTML = "<b>Warp time:</b> 150";
+        this.playerSpeed.innerHTML = "<b>Speed:</b> 65";
+        this.playerAmmo.innerHTML = "<b>Ammo:</b> 30";
+
+    }
+
+    show() {
         this.scene.add(this.model);
+        this.element.style.display = "";
+        this.statsElement.style.display = "";
 
         this.title.innerHTML = "spaceshooter.js";
         this.logo.setAttribute("src", "./logo.png");
         this.text.innerHTML = "Welcome to spaceshooter.js<br />This game is still WIP. If you find any bugs please report them at robin@geheimsite.nl<br />Also, have fun playing. There is no goal yet, but in the future there will be enemies trying to shoot you.<br />Press Escape to pause the game if you want to. Now please select your pilot and click Play to start your adventure. Enjoy!";
         this.button.innerHTML = "Play!";
+
+        this.switchSkin(1);
+    }
+
+    hide() {
+        this.element.style.display = "none";
+        this.statsElement.style.display = "none";
     }
 
     animate(renderer, clock) {
@@ -245,15 +285,16 @@ class menuScreenComponent {
         if (this.mixer) {
             this.mixer.update(clock.getDelta());
         }
-
-        console.log("step")
         
         renderer.render(this.scene, this.camera);
     }
 
-    start(callback) {
+    exit(callback) {
         console.log("Menu hidden, game started.");
-        this.element.style.display = "none";
+
+        this.hide();
+
+        this.scene.clear();
         this.GAME_STARTED = true;
         callback();
     }

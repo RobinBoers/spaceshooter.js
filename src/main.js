@@ -51,25 +51,23 @@ function init() {
     THREE.DefaultLoadingManager.onLoad = function() {
         RESCOURCES_LOADED = true;
 
-        console.log("Assets loaded.");
-
         // Load models and other crap
         manager.onRescourcesLoaded(graphics);
 
         // Render the scene for the first time
         graphics.composer.render();
 
-        menuScreen.open();
-
+        // Show menu
+        menuScreen.show();
     }
 
     menuScreen.button.onclick = function() {
-        menuScreen.start(() => {
+        menuScreen.exit(() => {
             // Pause the game
             pauseScreen.init(clock);
 
             // Show hud
-            hud.unhide();
+            hud.show();
         });
     };
 
@@ -97,8 +95,8 @@ function init() {
     controls.godMode = false;
 
     // Rings
-    // rings = new ringsComponent(700, graphics.scene, graphics.USE_WIREFRAME, graphics.colors);
-    // rings.spawnRings();
+    rings = new ringsComponent(50, graphics.scene, graphics.USE_WIREFRAME, graphics.colors);
+    rings.spawnRings();
 
     // HUD
     hud = new HUD(maxHealth, maxSpeed, maxAmmo);
@@ -121,6 +119,7 @@ function tick() {
 
     requestAnimationFrame(tick);
 
+    // When the player is still in the hub / menu thinhie, dont render/update the game.
     if(!menuScreen.GAME_STARTED) {
         menuScreen.animate(graphics.renderer, clock);
         return;
