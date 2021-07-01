@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 
 class loadingScreenComponent {
     constructor(colors) {
@@ -70,7 +70,8 @@ class pauseScreenComponent {
                 this.pause(clock);
             }
         });
-        
+
+        this.resume(clock);
     }
 
     isPaused() {
@@ -145,143 +146,98 @@ class menuScreenComponent {
 
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(90, window.innerWidth / innerHeight, 0.1, 100);
+        this.camera.position.setZ(30);
 
         this.GAME_STARTED = false;
 
-        this.MODEL_PATH = "https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy_lightweight.glb";
-        this.TEXTURE_PATH = "https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy.jpg"
+        this.MODEL_PATH = "./models/characterMedium.fbx";
+        this.TEXTURE_PATH = "./skins/cyborgFemaleA.png";
+        this.ANIMATION_PATH = "./anims/idle.fbx";
 
-        this.loader = new GLTFLoader();
+        this.loader = new FBXLoader();
 
         this.ambientLight = new THREE.AmbientLight(colors[3], 0.6);
         this.directionalLight = new THREE.DirectionalLight(colors[3], 0.6);
 
-        this.lookAtCursor = true;
+        this.animationActions = [];
+        this.activeAction;
+
+        this.element = document.getElementById("menu");
+        this.title = document.getElementById("menu-title");
+        this.text = document.getElementById("menu-text");
+        this.logo = document.getElementById("logo");
+        this.button = document.getElementById("play-btn");
+
+        this.init();
     }
 
     init() {
 
         const scope = this;
-        let idle, neck, waist;
 
         this.directionalLight.position.set(5, 5, 5);
         this.directionalLight.castShadow = true;
 
         this.scene.add(this.ambientLight, this.directionalLight);
 
-        // Animated models, made with some help from: 
-        // https://tympanus.net/codrops/2019/10/14/how-to-create-an-interactive-3d-character-with-three-js/
-        scope.stacy_texture = new THREE.TextureLoader().load(scope.TEXTURE_PATH);
-        scope.stacy_texture.flipY = false; // we flip the texture so that its the right way up
+        // Animated models
 
-        scope.stacy_material = new THREE.MeshStandardMaterial({
-            map: scope.stacy_texture
+        scope.texture = new THREE.TextureLoader().load(scope.TEXTURE_PATH);
+ 
+        scope.skin = new THREE.MeshStandardMaterial({
+            map: scope.texture
         });
 
         this.loader.load(
             scope.MODEL_PATH,
-            function(gltf) {
-                scope.model = gltf.scene;
-                let fileAnimations = gltf.animations;
+            function(object) {
+                scope.model = object;
 
                 scope.model.traverse(o => {
                     if (o.isMesh) {
                       o.castShadow = true;
                       o.receiveShadow = true;
-                      o.material = scope.stacy_material;
-                    }
-                    if (o.isBone && o.name === 'mixamorigNeck') { 
-                        neck = o;
-                    }
-                    if (o.isBone && o.name === 'mixamorigSpine') { 
-                        waist = o;
+                      o.material = scope.skin;
                     }
                 });
 
-                scope.model.scale.set(9, 9, 9);
-                scope.model.position.set(-13, -10, -13)
-                scope.model.rotation.set(0, .9, 0)
-
-                scope.scene.add(scope.model);
+                scope.model.scale.set(.1,.1,.1);
+                scope.model.position.set(-15, -30, 0);
+                scope.model.rotation.set(0, .7, 0);
 
                 scope.mixer = new THREE.AnimationMixer(scope.model);
 
-                let idleAnim = THREE.AnimationClip.findByName(fileAnimations, 'idle');
+                scope.loader.load(
+                    scope.ANIMATION_PATH,
+                    function(object) {
+        
+                        let animationAction = scope.mixer.clipAction(object.animations[0]);
+                        scope.animationActions.push(animationAction);
+                        scope.activeAction = scope.animationActions[0];
+                        scope.activeAction.play();
+        
+                    },
+                    undefined, // not needed
+                    function(error) {
+                      console.error(error);
+                    }
+                );
 
-                idleAnim.tracks.splice(3, 3);
-                idleAnim.tracks.splice(9, 3);
-
-                idle = scope.mixer.clipAction(idleAnim);
-                idle.play();
             },
             undefined, // not needed
             function(error) {
               console.error(error);
             }
-        );
-
-        if(scope.lookAtCursor) {
-            document.addEventListener('mousemove', function(e) {
-                var mousecoords = scope.getMousePos(e);
-                if (neck && waist) {
-                    scope.moveJoint(mousecoords, neck, 40);
-                    scope.moveJoint(mousecoords, waist, 7);
-                }
-            });
-        }        
+        );   
     }
 
-    getMousePos(e) {
-        return { x: e.clientX, y: e.clientY };
-    }
+    open() {
+        this.scene.add(this.model);
 
-    moveJoint(mouse, joint, degreeLimit) {
-        let degrees = this.getMouseDegrees(mouse.x, mouse.y, degreeLimit);
-        joint.rotation.y = THREE.Math.degToRad(degrees.x);
-        joint.rotation.x = THREE.Math.degToRad(degrees.y);
-    }
-
-    getMouseDegrees(x, y, degreeLimit) {
-        let dx = 0,
-            dy = 0,
-            xdiff,
-            xPercentage,
-            ydiff,
-            yPercentage;
-      
-        let w = { x: window.innerWidth, y: window.innerHeight };
-      
-        // Left (Rotates neck left between 0 and -degreeLimit)
-        
-         // 1. If cursor is in the left half of screen
-        if (x <= w.x / 2) {
-          // 2. Get the difference between middle of screen and cursor position
-          xdiff = w.x / 2 - x;  
-          // 3. Find the percentage of that difference (percentage toward edge of screen)
-          xPercentage = (xdiff / (w.x / 2)) * 100;
-          // 4. Convert that to a percentage of the maximum rotation we allow for the neck
-          dx = ((degreeLimit * xPercentage) / 100) * -1; }
-      // Right (Rotates neck right between 0 and degreeLimit)
-        if (x >= w.x / 2) {
-          xdiff = x - w.x / 2;
-          xPercentage = (xdiff / (w.x / 2)) * 100;
-          dx = (degreeLimit * xPercentage) / 100;
-        }
-        // Up (Rotates neck up between 0 and -degreeLimit)
-        if (y <= w.y / 2) {
-          ydiff = w.y / 2 - y;
-          yPercentage = (ydiff / (w.y / 2)) * 100;
-          // Note that I cut degreeLimit in half when she looks up
-          dy = (((degreeLimit * 0.5) * yPercentage) / 100) * -1;
-          }
-        
-        // Down (Rotates neck down between 0 and degreeLimit)
-        if (y >= w.y / 2) {
-          ydiff = y - w.y / 2;
-          yPercentage = (ydiff / (w.y / 2)) * 100;
-          dy = (degreeLimit * yPercentage) / 100;
-        }
-        return { x: dx, y: dy };
+        this.title.innerHTML = "spaceshooter.js";
+        this.logo.setAttribute("src", "./logo.png");
+        this.text.innerHTML = "Welcome to spaceshooter.js<br />This game is still WIP. If you find any bugs please report them at robin@geheimsite.nl<br />Also, have fun playing. There is no goal yet, but in the future there will be enemies trying to shoot you.<br />Press Escape to pause the game if you want to. Now please select your pilot and click Play to start your adventure. Enjoy!";
+        this.button.innerHTML = "Play!";
     }
 
     animate(renderer, clock) {
@@ -289,12 +245,16 @@ class menuScreenComponent {
         if (this.mixer) {
             this.mixer.update(clock.getDelta());
         }
+
+        console.log("step")
         
         renderer.render(this.scene, this.camera);
     }
 
     start(callback) {
-        console.log("Menu hidden.");
+        console.log("Menu hidden, game started.");
+        this.element.style.display = "none";
+        this.GAME_STARTED = true;
         callback();
     }
 

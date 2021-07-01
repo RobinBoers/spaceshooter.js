@@ -137,3 +137,32 @@ b {
     font-size: 20px;
     padding: 10px;
 }
+
+#menu {
+    position: absolute;
+    width: 20%;
+    right: 20%;
+    top: 10%;
+    z-index: 1;
+}
+
+#logo {
+    /* float: left; */
+    max-height: 250px;
+}
+
+#play-btn {
+    padding: 15px;
+    border: 2px solid darkblue;
+    background-color: royalblue;
+    color: #dddddd;
+    font-size: 20px;
+    width: 100%;
+    cursor: pointer;
+    font-family: monospace;
+    margin-top: 20px;
+}
+
+#play-btn:hover {
+    transform: scale(1.1);
+}

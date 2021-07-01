@@ -45,26 +45,33 @@ function init() {
     pauseScreen = new pauseScreenComponent();
 
     menuScreen = new menuScreenComponent(graphics.scene, graphics.colors);
-    menuScreen.lookAtCursor = false;
-    menuScreen.init();
 
     manager = new assetLoadingManager(models);
 
     THREE.DefaultLoadingManager.onLoad = function() {
         RESCOURCES_LOADED = true;
 
-        // Render the scene for the first time
-        graphics.composer.render();
-
-        // Pause the game
-        // pauseScreen.init(clock);
-        // pauseScreen.pause(clock);
+        console.log("Assets loaded.");
 
         // Load models and other crap
         manager.onRescourcesLoaded(graphics);
 
-        // hud.unhide();
+        // Render the scene for the first time
+        graphics.composer.render();
+
+        menuScreen.open();
+
     }
+
+    menuScreen.button.onclick = function() {
+        menuScreen.start(() => {
+            // Pause the game
+            pauseScreen.init(clock);
+
+            // Show hud
+            hud.unhide();
+        });
+    };
 
     window.addEventListener("resize", () => {
         graphics.onWindowResize();
@@ -87,11 +94,11 @@ function init() {
     controls.maxSpeedTime = maxSpeed;
     controls.speedTimeLeft = maxSpeed;
 
-    controls.godMode = true;
+    controls.godMode = false;
 
     // Rings
-    rings = new ringsComponent(700, graphics.scene, graphics.USE_WIREFRAME, graphics.colors);
-    rings.spawnRings();
+    // rings = new ringsComponent(700, graphics.scene, graphics.USE_WIREFRAME, graphics.colors);
+    // rings.spawnRings();
 
     // HUD
     hud = new HUD(maxHealth, maxSpeed, maxAmmo);
@@ -117,8 +124,6 @@ function tick() {
     if(!menuScreen.GAME_STARTED) {
         menuScreen.animate(graphics.renderer, clock);
         return;
-    } else {
-        console.log("konijn")
     }
 
     if(pauseScreen.isPaused()) return; // If the game is paused, it shouldn't be rendered.
