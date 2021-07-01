@@ -179,6 +179,11 @@ class menuScreenComponent {
         this.playerSpeed = document.getElementById("player-speed");
         this.playerAmmo = document.getElementById("player-ammo");
 
+        this.nextButton = document.getElementById("player-next");
+        this.prevButton = document.getElementById("player-prev");
+
+        this.currentSkin;
+
         this.init();
         this.hide();
     }
@@ -242,6 +247,13 @@ class menuScreenComponent {
             }
         );   
 
+        scope.nextButton.onclick = function() {
+            scope.selectSkin(true);
+        }
+        scope.prevButton.onclick = function() {
+            scope.selectSkin(false);
+        }
+
     }
 
     switchSkin(num) {
@@ -260,6 +272,24 @@ class menuScreenComponent {
         this.playerSpeed.innerHTML = "<b>Speed:</b> 65";
         this.playerAmmo.innerHTML = "<b>Ammo:</b> 30";
 
+        this.currentSkin = num;
+
+    }
+
+    selectSkin(next) {
+        if(next == true) {
+            if(this.currentSkin < this.skins.length - 1) {
+                this.switchSkin(this.currentSkin + 1);
+            } else {
+                this.switchSkin(0);
+            }
+        } else {
+            if(this.currentSkin > 0) {
+                this.switchSkin(this.currentSkin - 1);
+            } else {
+                this.switchSkin(this.skins.length - 1);
+            }
+        }
     }
 
     show() {
@@ -271,6 +301,9 @@ class menuScreenComponent {
         this.logo.setAttribute("src", "./logo.png");
         this.text.innerHTML = "Welcome to spaceshooter.js<br />This game is still WIP. If you find any bugs please report them at robin@geheimsite.nl<br />Also, have fun playing. There is no goal yet, but in the future there will be enemies trying to shoot you.<br />Press Escape to pause the game if you want to. Now please select your pilot and click Play to start your adventure. Enjoy!";
         this.button.innerHTML = "Play!";
+
+        this.prevButton.innerHTML = " &#8678; Previous ";
+        this.nextButton.innerHTML = " Next &#8680; ";
 
         this.switchSkin(1);
     }
