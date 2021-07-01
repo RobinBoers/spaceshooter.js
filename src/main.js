@@ -51,9 +51,6 @@ function init() {
         // Load models and other crap
         manager.onRescourcesLoaded(graphics);
 
-        // Render the scene for the first time
-        graphics.composer.render();
-
         // Show menu
         menuScreen.show();
     }
