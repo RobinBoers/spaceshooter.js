@@ -300,10 +300,10 @@ class Controls extends EventDispatcher {
                     bullets.splice(index,1);
                     continue;
                 }
-                                
-                bullets[index].position.add(bullets[index].velocity);
-                bullets[index].position.add(bullets[index].velocity);
-                bullets[index].position.add(bullets[index].velocity);
+
+                for(var i=0;i<6;i++) {
+                    bullets[index].position.add(bullets[index].velocity);
+                }
             }
 
             this.bullets = bullets;

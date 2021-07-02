@@ -17,6 +17,8 @@ class Enemies {
         this.speed = speed;
         this.model = model;
         this.scale = scale;
+
+        this.enemies = [];
         
     }
 
@@ -40,11 +42,43 @@ class Enemies {
         enemie.scale.set(9, 9, 9);
         enemie.position.set(xPos, yPos, zPos);
         enemie.rotation.set(xRot, yRot, zRot);
+
+        var vector = new THREE.Vector3();
+        enemie.velocity = enemie.getWorldDirection(vector);
+
+        this.enemies.push(enemie);
+
         scene.add(enemie);
     }
 
     update() {
+        let enemies = this.enemies;
 
+            for(var index=0; index<enemies.length; index+=1){
+                if( enemies[index] === undefined ) continue;
+                if( enemies[index].alive == false ){
+                    enemies.splice(index,1);
+                    continue;
+                }
+                
+                if(enemies[index].position.x > 1000 || enemies[index].position.x < -1000 || enemies[index].position.y > 1000 || enemies[index].position.y < -1000 || enemies[index].position.z > 1000 || enemies[index].position.z < -1000) {
+
+                    // Change path
+                    enemies[index].velocity.x = -enemies[index].velocity.x;
+                    enemies[index].velocity.y = -enemies[index].velocity.y;
+                    enemies[index].velocity.z = -enemies[index].velocity.z;
+
+                    // Make them look the right way
+                    enemies[index].lookAt(new THREE.Vector3(enemies[index].velocity.x, enemies[index].velocity.y, enemies[index].velocity.z));
+                }
+
+                // Move them
+                for(var i=0;i<this.speed/25;i++) {
+                    enemies[index].position.add(enemies[index].velocity);
+                }
+            }
+
+        this.enemies = enemies;
     }
     
 }
