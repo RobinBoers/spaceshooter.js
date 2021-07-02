@@ -1,4 +1,4 @@
-<img src="src/logo.png" style="float:right;max-width: 20%;">
+<img src="src/logo.png" style="float:right !important;max-width: 20% !important;">
 
 # spaceshooter.js
 Simple 3D style game made in JS using three.js  
