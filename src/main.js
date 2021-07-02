@@ -3,13 +3,16 @@ import * as THREE from "three";
 
 import { Controls } from "./controls-component";
 import { ringsComponent } from "./rings-component";
+import { Enemies } from "./enemies-ai";
 import { loadingScreenComponent, pauseScreenComponent, menuScreenComponent, HUD } from "./ui-component";
 import { graphicsComponent } from "./graphics"
 import { assetLoadingManager } from "./loading-manager"
 
-let graphics, controls, manager, hud, rings;
+let graphics, controls, manager, hud, rings, enemies;
 let loadingScreen, pauseScreen, menuScreen;
 
+// Defaults, will change later depending
+// on which pilot the player chooses.
 let maxHealth = 100;
 let maxWarp = 150;
 let maxSpeed = 100;
@@ -17,6 +20,8 @@ let maxAmmo = 30;
 
 const clock = new THREE.Clock();
 
+// In-game models. The models used on the menu are loaded
+// seperatly in their own class.
 let models = {
     ship: {
         obj: "models/craft_speederD.obj", 
@@ -41,7 +46,7 @@ function init() {
     loadingScreen = new loadingScreenComponent(graphics.colors);
     pauseScreen = new pauseScreenComponent();
 
-    menuScreen = new menuScreenComponent(graphics.scene, graphics.colors);
+    menuScreen = new menuScreenComponent(graphics.colors);
 
     manager = new assetLoadingManager(models);
 
@@ -57,15 +62,20 @@ function init() {
 
     menuScreen.button.onclick = function() {
         menuScreen.exit(() => {
-            // Pause the game
+            // Initiaze the pausescreen
             pauseScreen.init(clock);
+
+            // Spawn enemies (with default stats)
+            enemies = new Enemies(50, graphics.scene, maxHealth, maxSpeed, manager.getModel("enemie"), 9);
+            enemies.spawn();
 
             maxHealth = menuScreen.health;
             maxWarp = menuScreen.warp;
             maxSpeed = menuScreen.speed;
             maxAmmo = menuScreen.ammo;
 
-            // HUD
+            // Set correct stats for the HUD (based on the
+            //pilot chosen by the player)
             hud.updateStats(maxHealth, maxWarp, maxAmmo)
             hud.show();
 
@@ -84,7 +94,7 @@ function init() {
             controls.maxSpeedTime = maxWarp;
             controls.speedTimeLeft = maxWarp;
 
-            controls.godMode = false;
+            controls.godMode = false; // For testing only
         });
     };
 
@@ -94,11 +104,13 @@ function init() {
         menuScreen.onWindowResize();
     });
 
-    // Rings
-    rings = new ringsComponent(50, graphics.scene, graphics.USE_WIREFRAME, graphics.colors);
-    rings.spawnRings();
+    // Rings (for debugging)
+    // rings = new ringsComponent(50, graphics.scene, graphics.USE_WIREFRAME, graphics.colors);
+    // rings.spawn();
 
     // HUD
+    // The values provided here will change later,
+    // depending on what pilot the player chooses
     hud = new HUD(maxHealth, maxWarp, maxAmmo);
 
     // Start the animation loop thingie
@@ -107,19 +119,22 @@ function init() {
 
 function tick() {
     
+    // If the game isnt fully loaded yet, show the loading screen
     if(!RESCOURCES_LOADED) {
         requestAnimationFrame(tick);
 
         loadingScreen.animate(graphics.renderer);
-
         return;
+
     } else {
+        // If it is loaded, hide the loading text
         loadingScreen.loadingText.style.display = "none";
     }
 
     requestAnimationFrame(tick);
 
-    // When the player is still in the hub / menu thinhie, dont render/update the game.
+    // When the player is still in the menu,
+    // render the menu and not the game
     if(!menuScreen.GAME_STARTED) {
         menuScreen.animate(graphics.renderer, clock);
         return;

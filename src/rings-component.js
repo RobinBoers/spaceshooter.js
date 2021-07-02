@@ -3,13 +3,13 @@ import * as THREE from "three";
 class ringsComponent {
     constructor(count, scene, USE_WIREFRAME, colors) {
 
-        // Required options
-        if(!count) {console.warn("spawnRings: 'count' parameter is requierd."); return;}
-        if(!scene) {console.warn("spawnRings: 'scene' parameter is requierd."); return;}
+        // Required parameters
+        if(!count) {console.warn("ringsComponent: 'count' parameter is requierd."); return;}
+        if(!scene) {console.warn("ringsComponent: 'scene' parameter is requierd."); return;}
 
-        // Optional options
+        // Optional parameters
         if(!USE_WIREFRAME) USE_WIREFRAME = false;
-        if(!colors) colors = [ 0x000000, 0x000000, 0xff6347, 0x000000 ];
+        if(!colors) colors = [ 0xdddddd, 0x000000, 0xff6347, 0xffffff ];
 
         this.count = count;
         this.scene = scene;
@@ -18,13 +18,13 @@ class ringsComponent {
         
     }
 
-    spawnRings() {
+    spawn() {
         for (var i = 0; i < this.count; i++) {
-            this.addRing(this.scene, this.USE_WIREFRAME, this.colors[2]);
+            this.add(this.scene, this.USE_WIREFRAME, this.colors[2]);
         }
     }
 
-    addRing(scene, USE_WIREFRAME, color) {
+    add(scene, USE_WIREFRAME, color) {
         const geometry = new THREE.TorusGeometry(15, 3, 16, 100);
         const material = new THREE.MeshLambertMaterial({ color: color, wireframe: USE_WIREFRAME });
         const torus = new THREE.Mesh(geometry, material);

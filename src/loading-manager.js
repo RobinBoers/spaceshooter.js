@@ -58,6 +58,7 @@ class assetLoadingManager {
         this.meshes["player"] = this.models.ship.mesh.clone();
         this.meshes["miner"] = this.models.miner.mesh.clone();
         this.meshes["miner2"] = this.models.miner.mesh.clone();
+        this.meshes["enemie"] = this.models.ship.mesh.clone();
         
         this.meshes["player"].scale.x = 9;
         this.meshes["player"].scale.y = 9;
