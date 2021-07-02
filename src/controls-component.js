@@ -78,7 +78,7 @@ class Controls extends EventDispatcher {
                     this.mouseDown = true;
                     break;
 
-                case "KeyT":
+                case "KeyR":
                     this.reload()
                     break;
 
@@ -96,12 +96,12 @@ class Controls extends EventDispatcher {
                     this.moveState.right = 1;
                     break;
 
-                case "KeyR":
-                    this.moveState.up = 1;
-                    break;
-                case "KeyF":
-                    this.moveState.down = 1;
-                    break;
+                // case "KeyR":
+                //     this.moveState.up = 1;
+                //     break;
+                // case "KeyF":
+                //     this.moveState.down = 1;
+                //     break;
 
                 case "ArrowUp":
                     this.moveState.pitchUp = 1;
@@ -161,12 +161,12 @@ class Controls extends EventDispatcher {
                     this.moveState.right = 0;
                     break;
 
-                case "KeyR":
-                    this.moveState.up = 0;
-                    break;
-                case "KeyF":
-                    this.moveState.down = 0;
-                    break;
+                // case "KeyR":
+                //     this.moveState.up = 0;
+                //     break;
+                // case "KeyF":
+                //     this.moveState.down = 0;
+                //     break;
 
                 case "ArrowUp":
                     this.moveState.pitchUp = 0;
