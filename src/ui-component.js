@@ -116,9 +116,7 @@ class HUD {
         this.maxSpeed = maxSpeed;
         this.maxAmmo = maxAmmo;
 
-        this.health = this.maxHealth;
-        this.speed = this.maxSpeed;
-        this.ammo = this.maxAmmo;
+        this.init();
     }
 
     init() {

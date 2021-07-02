@@ -143,7 +143,7 @@ function tick() {
     if(pauseScreen.isPaused()) return; // If the game is paused, it shouldn't be rendered.
 
     // graphics.renderer.render(graphics.scene, graphics.camera);
-    hud.update(100, controls.speedTimeLeft, controls.ammo)
+    hud.update(maxHealth, controls.speedTimeLeft, controls.ammo)
     graphics.composer.render();
     controls.update(clock.getDelta());
 }
