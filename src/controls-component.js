@@ -365,7 +365,7 @@ class Controls extends EventDispatcher {
                 };
                 if(!this.godMode) this.ammo -= 1;
             
-                const timeout = 4;
+                const timeout = 4; // time the bullets lives before it despawns (in sec)
             
                 bullet.position.set(
                     this.object.position.x, 
@@ -389,22 +389,24 @@ class Controls extends EventDispatcher {
         };
 
         this.reload = function () {
-            if(this.reloading) return; // return if already reloading.
+            // if(this.reloading == true) return; // return if already reloading.
             if(this.ammo == this.maxAmmo) return; // return of already full
-            this.reloading = true;
+            // this.reloading = true;
 
-            for(let i = 0; i < scope.maxAmmo;i++) {
-                setTimeout(() => {
+            // for(let i = 0; i < scope.maxAmmo;i++) {
+            //     setTimeout(() => {
 
-                    if(scope.ammo == scope.maxAmmo) { // when full cancel the function
-                        this.reloading = false;
-                        return;
-                    }
+            //         if(scope.ammo == scope.maxAmmo) { // when full cancel the function
+            //             this.reloading = false;
+            //             return;
+            //         }
 
-                    scope.ammo += 1;
+            //         scope.ammo += 1;
 
-                }, 200*i);
-            }
+            //     }, 200*i);
+            // }
+
+            scope.ammo = scope.maxAmmo;
         }
 
         const _mousemove = this.mousemove.bind(this);
