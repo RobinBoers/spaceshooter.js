@@ -1,15 +1,18 @@
 import "./style.css";
 import * as THREE from "three";
+import { Ammo } from "./libs/ammo";
 
 import { Controls } from "./controls-component";
 import { ringsComponent } from "./rings-component";
 import { Enemies } from "./enemies-ai";
 import { loadingScreenComponent, pauseScreenComponent, menuScreenComponent, HUD } from "./ui-component";
-import { graphicsComponent } from "./graphics"
-import { assetLoadingManager } from "./loading-manager"
+import { graphicsComponent } from "./graphics";
+import { assetLoadingManager } from "./loading-manager";
 
 let graphics, controls, manager, hud, rings, enemies;
 let loadingScreen, pauseScreen, menuScreen;
+
+let physicsWorld;
 
 // Defaults, will change later depending
 // on which pilot the player chooses.
@@ -24,23 +27,27 @@ const clock = new THREE.Clock();
 // seperatly in their own class.
 let models = {
     ship: {
-        obj: "models/craft_speederD.obj", 
+        obj: "models/craft_speederD.obj",
         mtl: "models/craft_speederD.mtl",
-        mesh: null
+        mesh: null,
     },
     miner: {
-        obj: "models/craft_miner.obj", 
+        obj: "models/craft_miner.obj",
         mtl: "models/craft_miner.mtl",
-        mesh: null
-    }
+        mesh: null,
+    },
 };
 
 let RESCOURCES_LOADED = false;
 
-window.onload = init();
+Ammo().then(function (AmmoLib) {
+    init();
+    initPhysics();
+});
+
+console.log(Ammo);
 
 function init() {
-
     graphics = new graphicsComponent();
 
     loadingScreen = new loadingScreenComponent(graphics.colors);
@@ -50,7 +57,7 @@ function init() {
 
     manager = new assetLoadingManager(models);
 
-    THREE.DefaultLoadingManager.onLoad = function() {
+    THREE.DefaultLoadingManager.onLoad = function () {
         RESCOURCES_LOADED = true;
 
         // Load models and other crap
@@ -58,9 +65,9 @@ function init() {
 
         // Show menu
         menuScreen.show();
-    }
+    };
 
-    menuScreen.button.onclick = function() {
+    menuScreen.button.onclick = function () {
         menuScreen.exit(() => {
             // Initiaze the pausescreen
             pauseScreen.init(clock);
@@ -76,7 +83,7 @@ function init() {
 
             // Set correct stats for the HUD (based on the
             //pilot chosen by the player)
-            hud.updateStats(maxHealth, maxWarp, maxAmmo)
+            hud.updateStats(maxHealth, maxWarp, maxAmmo);
             hud.show();
 
             // Controls
@@ -117,15 +124,23 @@ function init() {
     tick();
 }
 
+function initPhysics() {
+    let collisionConfiguration = new Ammo.btDefaultCollisionConfiguration(),
+        dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration),
+        overlappingPairCache = new Ammo.btDbvtBroadphase(),
+        solver = new Ammo.btSequentialImpulseConstraintSolver();
+
+    physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+    physicsWorld.setGravity(new Ammo.btVector3(0, -10, 0));
+}
+
 function tick() {
-    
     // If the game isnt fully loaded yet, show the loading screen
-    if(!RESCOURCES_LOADED) {
+    if (!RESCOURCES_LOADED) {
         requestAnimationFrame(tick);
 
         loadingScreen.animate(graphics.renderer);
         return;
-
     } else {
         // If it is loaded, hide the loading text
         loadingScreen.loadingText.style.display = "none";
@@ -135,12 +150,12 @@ function tick() {
 
     // When the player is still in the menu,
     // render the menu and not the game
-    if(!menuScreen.GAME_STARTED) {
+    if (!menuScreen.GAME_STARTED) {
         menuScreen.animate(graphics.renderer, clock);
         return;
     }
 
-    if(pauseScreen.isPaused()) return; // If the game is paused, it shouldn't be rendered.
+    if (pauseScreen.isPaused()) return; // If the game is paused, it shouldn't be rendered.
 
     // graphics.renderer.render(graphics.scene, graphics.camera);
     hud.update(maxHealth, controls.speedTimeLeft, controls.ammo);
