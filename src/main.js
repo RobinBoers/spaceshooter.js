@@ -74,6 +74,13 @@ function init() {
             // Initiaze the pausescreen
             pauseScreen.init(clock);
 
+            // Hide cursor and lock it
+            document.querySelector("#bg").style.cursor = "none";
+
+            // Make crosshair visible
+            document.querySelector("#crosshair-wrapper").style.display = "flex";
+            document.querySelector("#crosshair").setAttribute("src", "assets/crosshair.png");
+
             // Spawn enemies (with default stats)
             enemies = new Enemies(50, graphics.scene, maxHealth, maxSpeed, manager.getModel("enemie"), 9);
             enemies.spawn();
