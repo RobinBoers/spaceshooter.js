@@ -1,1 +1,7 @@
-{}
+{
+    "version": "ersion three million",
+    "scripts": {
+        "start": "echo 'You are in the wrong directory stupid! Also, the command should be npm run dev'",
+        "dev": "echo 'You are in the wrong directory stupid!'"
+    }
+}
