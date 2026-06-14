@@ -1,4 +1,4 @@
-import { EventDispatcher, Quaternion, Vector3 } from "three/build/three.module.js";
+import { EventDispatcher, Quaternion, Vector3 } from "three";
 import * as THREE from "three";
 
 
